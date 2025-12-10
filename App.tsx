@@ -11,6 +11,8 @@ import AILabPage from './components/AILabPage';
 import DetailPanel from './components/DetailPanel'; 
 import ResourceCard from './components/ResourceCard';
 import CategoryManager from './components/CategoryManager';
+import LoreEditor from './components/LoreEditor';
+import HistoryModal from './components/HistoryModal';
 import { 
   Network, 
   Book, 
@@ -41,6 +43,11 @@ export default function App() {
   const [categories, setCategories] = useState<CategoryDefinition[]>(DEFAULT_CATEGORIES);
   const [isCategoryManagerOpen, setCategoryManagerOpen] = useState(false);
 
+  // Editor & History State (Global)
+  const [isLoreEditorOpen, setLoreEditorOpen] = useState(false);
+  const [editingLoreEntity, setEditingLoreEntity] = useState<LoreEntity | undefined>(undefined);
+  const [isHistoryOpen, setHistoryOpen] = useState(false);
+
   const t = DICTIONARY[lang];
 
   const activeProject = PROJECTS.find(p => p.id === activeProjectId) || PROJECTS[0];
@@ -70,12 +77,28 @@ export default function App() {
 
   const handleUpdateEntity = (updatedEntity: AppEntity) => {
     setEntities(prev => prev.map(e => e.id === updatedEntity.id ? updatedEntity : e));
-    // If selected, update selection logic implicit via id
+    // Refresh selection if needed
+    if (selectedEntityId === updatedEntity.id) {
+        // Force re-render of detail panel through data change
+    }
   };
 
   const handleDeleteEntity = (id: string) => {
     setEntities(prev => prev.filter(e => e.id !== id));
     if (selectedEntityId === id) setSelectedEntityId(null);
+  };
+
+  const handleOpenLoreEditor = (entity?: LoreEntity) => {
+    setEditingLoreEntity(entity);
+    setLoreEditorOpen(true);
+  };
+
+  const handleEditEntity = (entity: AppEntity) => {
+    if (entity.type === EntityType.LORE) {
+      handleOpenLoreEditor(entity as LoreEntity);
+    } else {
+      alert("Editing for this entity type is not yet supported in this demo.");
+    }
   };
 
   const TabIcons = {
@@ -128,6 +151,7 @@ export default function App() {
             onAddEntity={handleAddEntity}
             onUpdateEntity={handleUpdateEntity}
             onDeleteEntity={handleDeleteEntity}
+            onOpenEditor={handleOpenLoreEditor}
           />
         );
       case EntityType.ASSET:
@@ -171,7 +195,7 @@ export default function App() {
         <div className="p-6 border-b border-slate-800">
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
             <span className="text-white"><Network /></span>
-            {t.appTitle} <span className="text-xs text-slate-500 font-normal mt-1">v1.3</span>
+            {t.appTitle} <span className="text-xs text-slate-500 font-normal mt-1">v1.4</span>
           </h1>
           <div className="mt-3 px-2 py-1 bg-slate-800 rounded border border-slate-700">
              <div className="text-[10px] text-slate-500 uppercase font-bold">{t.currentProject}</div>
@@ -324,7 +348,9 @@ export default function App() {
           entity={selectedEntity} 
           onClose={() => setSelectedEntityId(null)} 
           onSelectEntity={setSelectedEntityId}
-          lang={lang} 
+          lang={lang}
+          onEdit={handleEditEntity}
+          onViewHistory={() => setHistoryOpen(true)}
         />
       )}
 
@@ -334,6 +360,28 @@ export default function App() {
         onClose={() => setCategoryManagerOpen(false)}
         categories={categories}
         setCategories={setCategories}
+        lang={lang}
+      />
+
+      {/* Lore Editor Modal */}
+      <LoreEditor 
+        isOpen={isLoreEditorOpen}
+        onClose={() => setLoreEditorOpen(false)}
+        onSave={(e) => {
+            if (editingLoreEntity) handleUpdateEntity(e);
+            else handleAddEntity(e);
+        }}
+        initialData={editingLoreEntity}
+        lang={lang}
+        categories={categories}
+        projectId={activeProjectId}
+      />
+
+      {/* History Modal */}
+      <HistoryModal 
+        isOpen={isHistoryOpen}
+        onClose={() => setHistoryOpen(false)}
+        entity={selectedEntity || null}
         lang={lang}
       />
     </div>

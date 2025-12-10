@@ -141,6 +141,14 @@ export const DICTIONARY = {
       basicInfo: "Basic Info",
       details: "Details",
       batchSize: "Batch Size"
+    },
+    history: {
+      title: "Version History",
+      version: "Version",
+      date: "Date",
+      author: "Author",
+      changes: "Changes",
+      restore: "Restore"
     }
   },
   zh: {
@@ -286,6 +294,14 @@ export const DICTIONARY = {
       basicInfo: "基本信息",
       details: "详细内容",
       batchSize: "生成数量"
+    },
+    history: {
+      title: "版本历史",
+      version: "版本",
+      date: "日期",
+      author: "作者",
+      changes: "变更内容",
+      restore: "恢复"
     }
   }
 };

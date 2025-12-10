@@ -1,10 +1,9 @@
 
 import React, { useState, useMemo } from 'react';
-import { LoreEntity, CategoryDefinition, EntityStatus } from '../types';
+import { LoreEntity, CategoryDefinition, EntityStatus, AppEntity } from '../types';
 import { Language, DICTIONARY } from '../utils';
 import ResourceCard from './ResourceCard';
 import { Filter, Settings, Plus, Wand2 } from 'lucide-react';
-import LoreEditor from './LoreEditor';
 import AIGenerator from './AIGenerator';
 
 interface WorldBiblePageProps {
@@ -18,6 +17,7 @@ interface WorldBiblePageProps {
   onAddEntity: (entity: LoreEntity) => void;
   onUpdateEntity: (entity: LoreEntity) => void;
   onDeleteEntity: (id: string) => void;
+  onOpenEditor: (entity?: LoreEntity) => void;
 }
 
 const WorldBiblePage: React.FC<WorldBiblePageProps> = ({ 
@@ -30,12 +30,11 @@ const WorldBiblePage: React.FC<WorldBiblePageProps> = ({
   projectName,
   onAddEntity,
   onUpdateEntity,
-  onDeleteEntity
+  onDeleteEntity,
+  onOpenEditor
 }) => {
   const [filter, setFilter] = useState<string>('All');
-  const [isEditorOpen, setEditorOpen] = useState(false);
   const [isAIGenOpen, setAIGenOpen] = useState(false);
-  const [editingEntity, setEditingEntity] = useState<LoreEntity | undefined>(undefined);
 
   const t = DICTIONARY[lang];
 
@@ -52,16 +51,6 @@ const WorldBiblePage: React.FC<WorldBiblePageProps> = ({
       return lang === 'zh' ? def.name_zh : def.name;
   };
 
-  const handleOpenAdd = () => {
-    setEditingEntity(undefined);
-    setEditorOpen(true);
-  };
-
-  const handleEdit = (entity: any) => {
-    setEditingEntity(entity as LoreEntity);
-    setEditorOpen(true);
-  };
-
   const handleDelete = (id: string) => {
     if (window.confirm(t.crud.deleteConfirm)) {
       onDeleteEntity(id);
@@ -76,7 +65,7 @@ const WorldBiblePage: React.FC<WorldBiblePageProps> = ({
            {/* Actions Row */}
            <div className="flex gap-2">
               <button 
-                onClick={handleOpenAdd}
+                onClick={() => onOpenEditor()}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-blue-900/20 transition-all"
               >
                 <Plus size={16} /> {t.crud.addEntity}
@@ -141,14 +130,14 @@ const WorldBiblePage: React.FC<WorldBiblePageProps> = ({
             entity={entity} 
             onClick={onSelect} 
             lang={lang} 
-            onEdit={handleEdit}
+            onEdit={(e) => onOpenEditor(e as LoreEntity)}
             onDelete={handleDelete}
           />
         ))}
         
         {/* Empty State / Add New Card Shortcut */}
         <button 
-          onClick={handleOpenAdd}
+          onClick={() => onOpenEditor()}
           className="border border-dashed border-slate-800 rounded-xl flex flex-col items-center justify-center text-slate-600 hover:text-blue-400 hover:border-blue-500/50 hover:bg-slate-900/50 transition-all min-h-[200px] group"
         >
            <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -157,20 +146,6 @@ const WorldBiblePage: React.FC<WorldBiblePageProps> = ({
            <span className="text-sm font-medium">{t.crud.addEntity}</span>
         </button>
       </div>
-
-      {/* Modals */}
-      <LoreEditor 
-        isOpen={isEditorOpen}
-        onClose={() => setEditorOpen(false)}
-        onSave={(e) => { 
-           if (editingEntity) onUpdateEntity(e); 
-           else onAddEntity(e); 
-        }}
-        initialData={editingEntity || { category: filter === 'All' ? categories[0]?.id : filter }}
-        lang={lang}
-        categories={categories}
-        projectId={projectId}
-      />
 
       <AIGenerator 
         isOpen={isAIGenOpen}

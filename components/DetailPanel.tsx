@@ -19,13 +19,19 @@ interface DetailPanelProps {
   onClose: () => void;
   onSelectEntity: (id: string) => void;
   lang: Language;
+  onEdit: (entity: AppEntity) => void;
+  onViewHistory: () => void;
 }
 
-const DetailPanel: React.FC<DetailPanelProps> = ({ entity, onClose, onSelectEntity, lang }) => {
+const DetailPanel: React.FC<DetailPanelProps> = ({ entity, onClose, onSelectEntity, lang, onEdit, onViewHistory }) => {
   const t = DICTIONARY[lang];
 
   // 1. Group Linked Entities
   const relations = useMemo(() => {
+    // In a real app this should use the live entity state, but for MVP MOCK_DATA linkage is static reference
+    // We can rely on the passed 'entity.linked_ids' to search the global store if available, 
+    // but here we fall back to MOCK_DATA for the lookups to find *other* entities. 
+    // ideally App should pass "allEntities" prop.
     const linked = MOCK_DATA.filter(item => entity.linked_ids.includes(item.id));
     const grouped: Partial<Record<EntityType, AppEntity[]>> = {};
     
@@ -71,9 +77,9 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ entity, onClose, onSelectEnti
             {getLoc(entity, 'title', lang)}
           </h2>
           <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
-            <span>ID: {entity.id}</span>
+            <span>{t.detailPanel.id}: {entity.id}</span>
             <span>•</span>
-            <span>Auth: {entity.author_id}</span>
+            <span>{t.detailPanel.auth}: {entity.author_id}</span>
           </div>
         </div>
 
@@ -185,11 +191,17 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ entity, onClose, onSelectEnti
       
       {/* Footer Actions */}
       <div className="p-4 border-t border-slate-800 bg-slate-900 shrink-0 flex gap-2">
-         <button className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded transition-colors">
-            Edit Entity
+         <button 
+           onClick={() => onEdit(entity)}
+           className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded transition-colors"
+         >
+            {t.detailPanel.editEntity}
          </button>
-         <button className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 rounded transition-colors">
-            View History
+         <button 
+           onClick={onViewHistory}
+           className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 rounded transition-colors"
+         >
+            {t.detailPanel.viewHistory}
          </button>
       </div>
     </aside>
