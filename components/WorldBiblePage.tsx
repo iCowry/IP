@@ -181,6 +181,7 @@ const WorldBiblePage: React.FC<WorldBiblePageProps> = ({
         projectName={projectName}
         lang={lang}
         categories={categories}
+        existingEntities={filteredData}
       />
     </div>
   );

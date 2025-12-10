@@ -139,7 +139,8 @@ export const DICTIONARY = {
       apply: "Apply to World",
       autoFill: "Auto-fill",
       basicInfo: "Basic Info",
-      details: "Details"
+      details: "Details",
+      batchSize: "Batch Size"
     }
   },
   zh: {
@@ -283,7 +284,8 @@ export const DICTIONARY = {
       apply: "应用到世界",
       autoFill: "自动填充",
       basicInfo: "基本信息",
-      details: "详细内容"
+      details: "详细内容",
+      batchSize: "生成数量"
     }
   }
 };

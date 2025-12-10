@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { LoreEntity, CategoryDefinition, EntityType, EntityStatus } from '../types';
 import { Language, DICTIONARY } from '../utils';
-import { Wand2, Loader2, Check, X } from 'lucide-react';
+import { Wand2, Loader2, Check, X, Layers } from 'lucide-react';
 
 interface AIGeneratorProps {
   isOpen: boolean;
@@ -14,6 +14,7 @@ interface AIGeneratorProps {
   projectName: string;
   lang: Language;
   categories: CategoryDefinition[];
+  existingEntities?: LoreEntity[];
 }
 
 const AIGenerator: React.FC<AIGeneratorProps> = ({
@@ -24,9 +25,11 @@ const AIGenerator: React.FC<AIGeneratorProps> = ({
   projectId,
   projectName,
   lang,
-  categories
+  categories,
+  existingEntities
 }) => {
   const [prompt, setPrompt] = useState('');
+  const [quantity, setQuantity] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const t = DICTIONARY[lang];
 
@@ -37,59 +40,73 @@ const AIGenerator: React.FC<AIGeneratorProps> = ({
     setIsGenerating(true);
 
     try {
-      // NOTE: In a real app, strict error handling for missing API key
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
       
       const categoryName = categories.find(c => c.id === category)?.name || category;
+
+      // Build context string from existing entities to avoid dupes and maintain coherence
+      const contextTitles = existingEntities 
+        ? existingEntities.map(e => e.title).slice(0, 30).join(", ")
+        : "None provided";
 
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: `
           Role: Game Designer / World Builder.
           Context: Project "${projectName}".
-          Task: Create a "${categoryName}" Lore Entity based on this idea: "${prompt}".
+          Existing World Context (Do not duplicate these): ${contextTitles}.
+          
+          Task: Create ${quantity} distinct "${categoryName}" Lore Entities based on this idea: "${prompt}".
+          
           Requirements:
           - Provide English and Chinese translations for Title, Description, and Content.
-          - Return a valid JSON object matching the LoreEntity structure.
+          - Return a valid JSON Array of objects matching the LoreEntity structure.
           - Use a futuristic or fantasy tone based on the context.
-          - Generate 3-5 relevant tags.
+          - Generate 3-5 relevant tags for each item.
         `,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              title: { type: Type.STRING },
-              title_zh: { type: Type.STRING },
-              description: { type: Type.STRING },
-              description_zh: { type: Type.STRING },
-              content: { type: Type.STRING },
-              content_zh: { type: Type.STRING },
-              tags: { type: Type.ARRAY, items: { type: Type.STRING } }
-            },
-            required: ['title', 'description', 'content', 'tags']
+            type: Type.ARRAY,
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                  title: { type: Type.STRING },
+                  title_zh: { type: Type.STRING },
+                  description: { type: Type.STRING },
+                  description_zh: { type: Type.STRING },
+                  content: { type: Type.STRING },
+                  content_zh: { type: Type.STRING },
+                  tags: { type: Type.ARRAY, items: { type: Type.STRING } }
+                },
+                required: ['title', 'description', 'content', 'tags']
+            }
           }
         }
       });
 
-      const result = JSON.parse(response.text || '{}');
+      const results = JSON.parse(response.text || '[]');
       
-      if (result.title) {
-        const newEntity: LoreEntity = {
-          id: `lore-ai-${Date.now()}`,
-          projectId,
-          type: EntityType.LORE,
-          status: EntityStatus.DRAFT,
-          category,
-          linked_ids: [],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          author_id: 'AI_Architect',
-          ...result
-        };
-        onGenerated(newEntity);
+      if (Array.isArray(results)) {
+        results.forEach((result, index) => {
+             const newEntity: LoreEntity = {
+                id: `lore-ai-${Date.now()}-${index}`,
+                projectId,
+                type: EntityType.LORE,
+                status: EntityStatus.DRAFT,
+                category,
+                linked_ids: [],
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                author_id: 'AI_Architect',
+                ...result
+            };
+            onGenerated(newEntity);
+        });
+        
         onClose();
         setPrompt('');
+        setQuantity(1);
       }
     } catch (e) {
       console.error("AI Generation Failed", e);
@@ -127,6 +144,31 @@ const AIGenerator: React.FC<AIGeneratorProps> = ({
                 disabled={isGenerating}
               />
            </div>
+
+           {/* Batch Size Selector */}
+           <div>
+             <label className="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-2">
+               <Layers size={14} />
+               {t.crud.batchSize}: <span className="text-white font-mono">{quantity}</span>
+             </label>
+             <input 
+               type="range" 
+               min="1" 
+               max="5" 
+               step="1"
+               value={quantity}
+               onChange={(e) => setQuantity(parseInt(e.target.value))}
+               className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+               disabled={isGenerating}
+             />
+             <div className="flex justify-between text-[10px] text-slate-600 px-1 mt-1 font-mono">
+               <span>1</span>
+               <span>2</span>
+               <span>3</span>
+               <span>4</span>
+               <span>5</span>
+             </div>
+           </div>
         </div>
 
         <div className="p-4 bg-slate-950 border-t border-slate-800 flex justify-end gap-2">
@@ -143,7 +185,7 @@ const AIGenerator: React.FC<AIGeneratorProps> = ({
              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg text-sm font-bold flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
            >
              {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-             {isGenerating ? t.crud.generating : t.crud.aiGenerate}
+             {isGenerating ? t.crud.generating : `${t.crud.aiGenerate} (${quantity})`}
            </button>
         </div>
       </div>
