@@ -8,12 +8,26 @@ import {
   AIEntity, 
   CodeEntity, 
   TaskEntity,
-  Project
+  Project,
+  CategoryDefinition
 } from './types';
 
 // Helper to generate ISO dates
 const now = new Date().toISOString();
 const past = (days: number) => new Date(Date.now() - days * 86400000).toISOString();
+
+export const DEFAULT_CATEGORIES: CategoryDefinition[] = [
+  { id: 'Character', name: 'Character', name_zh: '角色' },
+  { id: 'Location', name: 'Location', name_zh: '地点' },
+  { id: 'Timeline', name: 'Timeline', name_zh: '时间线' },
+  { id: 'Artifact', name: 'Artifact', name_zh: '物品' },
+  { id: 'Faction', name: 'Faction', name_zh: '势力' },
+  { id: 'Nation', name: 'Nation', name_zh: '国家' },
+  { id: 'Event', name: 'Event', name_zh: '事件' },
+  { id: 'Species', name: 'Species', name_zh: '种族' },
+  { id: 'Concept', name: 'Concept', name_zh: '概念/设定' },
+  { id: 'Cosmology', name: 'Cosmology', name_zh: '世界观' }
+];
 
 export const PROJECTS: Project[] = [
   {
@@ -59,7 +73,7 @@ export const MOCK_DATA: AppEntity[] = [
     created_at: past(30),
     updated_at: past(2),
     author_id: 'writer_sarah',
-    linked_ids: ['asset-001', 'lore-002', 'ai-002'] 
+    linked_ids: ['asset-001', 'lore-002', 'ai-002', 'lore-005'] 
   } as LoreEntity,
   {
     id: 'lore-002',
@@ -77,7 +91,7 @@ export const MOCK_DATA: AppEntity[] = [
     created_at: past(28),
     updated_at: past(10),
     author_id: 'writer_sarah',
-    linked_ids: ['lore-001', 'asset-002', 'code-001']
+    linked_ids: ['lore-001', 'asset-002', 'code-001', 'lore-004']
   } as LoreEntity,
   {
     id: 'lore-003',
@@ -96,6 +110,42 @@ export const MOCK_DATA: AppEntity[] = [
     updated_at: past(1),
     author_id: 'level_designer_mike',
     linked_ids: ['ai-001', 'task-002']
+  } as LoreEntity,
+  {
+    id: 'lore-004',
+    projectId: 'p1',
+    title: 'The Chrono-Guard',
+    title_zh: '时空守卫军',
+    description: 'An elite paramilitary group tasked with protecting the timeline from paradoxes.',
+    description_zh: '一支精英准军事组织，任务是保护时间线免受悖论的影响。',
+    type: EntityType.LORE,
+    status: EntityStatus.APPROVED,
+    tags: ['faction', 'allies', 'npc'],
+    category: 'Faction',
+    content: 'Founded by the first Time Traveler, the Guard operates in shadows...',
+    content_zh: '由第一位时间旅行者创立，守卫军在阴影中行动，消灭试图改变历史的威胁...',
+    created_at: past(60),
+    updated_at: past(5),
+    author_id: 'writer_sarah',
+    linked_ids: ['lore-001', 'lore-002']
+  } as LoreEntity,
+  {
+    id: 'lore-005',
+    projectId: 'p1',
+    title: 'The Great Eclipse',
+    title_zh: '大日食',
+    description: 'The cataclysmic event that fractured the timeline and introduced magic.',
+    description_zh: '导致时间线断裂并引入魔法的灾难性事件。',
+    type: EntityType.LORE,
+    status: EntityStatus.APPROVED,
+    tags: ['event', 'history', 'cataclysm'],
+    category: 'Event',
+    content: 'The sky turned purple, and clocks stopped worldwide. Valerius was born on this day.',
+    content_zh: '天空变成了紫色，全世界的时钟都停止了转动。瓦勒留斯正是出生在这一天。',
+    created_at: past(100),
+    updated_at: past(20),
+    author_id: 'writer_sarah',
+    linked_ids: ['lore-001']
   } as LoreEntity,
   {
     id: 'asset-001',
@@ -264,7 +314,61 @@ export const MOCK_DATA: AppEntity[] = [
     created_at: past(100),
     updated_at: past(10),
     author_id: 'writer_bob',
-    linked_ids: ['mars-asset-001', 'mars-ai-001']
+    linked_ids: ['mars-asset-001', 'mars-ai-001', 'mars-lore-002']
+  } as LoreEntity,
+  {
+    id: 'mars-lore-002',
+    projectId: 'p2',
+    title: 'Temple of Red Dust',
+    title_zh: '红尘神庙',
+    description: 'A massive underground structure dedicated to the Old Martian Gods.',
+    description_zh: '一座供奉古老火星神灵的巨大地下建筑。',
+    type: EntityType.LORE,
+    status: EntityStatus.DRAFT,
+    tags: ['location', 'dungeon', 'mystic'],
+    category: 'Location',
+    content: 'Walls lined with breathing obsidian. The air vibrates with chanting.',
+    content_zh: '墙壁上镶嵌着会呼吸的黑曜石。空气中震动着吟唱声。',
+    created_at: past(40),
+    updated_at: past(2),
+    author_id: 'writer_bob',
+    linked_ids: ['mars-lore-001', 'mars-asset-001']
+  } as LoreEntity,
+  {
+    id: 'mars-lore-003',
+    projectId: 'p2',
+    title: 'Iron Oxide Elixir',
+    title_zh: '氧化铁灵药',
+    description: 'A potion brewed from refined sand, granting temporary stone-skin.',
+    description_zh: '由精炼沙土酿制的药水，能赋予使用者暂时的石肤术。',
+    type: EntityType.LORE,
+    status: EntityStatus.APPROVED,
+    tags: ['item', 'consumable'],
+    category: 'Artifact',
+    content: 'Tastes like rusty metal, but turns flesh as hard as rock.',
+    content_zh: '尝起来像生锈的金属，但能让血肉变得坚如磐石。',
+    created_at: past(20),
+    updated_at: past(5),
+    author_id: 'writer_bob',
+    linked_ids: ['mars-lore-001']
+  } as LoreEntity,
+  {
+    id: 'mars-lore-004',
+    projectId: 'p2',
+    title: 'Order of the Dust Walkers',
+    title_zh: '尘行者教团',
+    description: 'A secretive religious sect that worships the ancient terraforming machines as dormant gods.',
+    description_zh: '一个秘密的宗教派别，将古老的大气改造机器视为沉睡的神灵进行崇拜。',
+    type: EntityType.LORE,
+    status: EntityStatus.APPROVED,
+    tags: ['faction', 'zealots', 'enemies'],
+    category: 'Faction',
+    content: 'They believe awakening the machines will purify the unworthy...',
+    content_zh: '他们相信唤醒这些机器将净化那些不配生存的人...',
+    created_at: past(80),
+    updated_at: past(5),
+    author_id: 'writer_bob',
+    linked_ids: ['mars-lore-001', 'mars-lore-002']
   } as LoreEntity,
   {
     id: 'mars-asset-001',
@@ -323,7 +427,61 @@ export const MOCK_DATA: AppEntity[] = [
     created_at: past(200),
     updated_at: past(20),
     author_id: 'writer_dave',
-    linked_ids: ['sci-asset-001', 'sci-task-001']
+    linked_ids: ['sci-asset-001', 'sci-task-001', 'sci-lore-002']
+  } as LoreEntity,
+  {
+    id: 'sci-lore-002',
+    projectId: 'p3',
+    title: 'Commander Halloway',
+    title_zh: '哈洛威指挥官',
+    description: 'The strict but fair leader of Colony Alpha. Retired Earth Force veteran.',
+    description_zh: '阿尔法殖民地严厉但公正的领导者。退役的地球军老兵。',
+    type: EntityType.LORE,
+    status: EntityStatus.APPROVED,
+    tags: ['character', 'leader', 'npc'],
+    category: 'Character',
+    content: 'Halloway lost her arm in the Lunar Wars. She trusts machines more than people.',
+    content_zh: '哈洛威在月球战争中失去了手臂。相比人类，她更信任机器。',
+    created_at: past(90),
+    updated_at: past(15),
+    author_id: 'writer_dave',
+    linked_ids: ['sci-lore-001', 'sci-task-001']
+  } as LoreEntity,
+  {
+    id: 'sci-lore-003',
+    projectId: 'p3',
+    title: 'Oxygen Credit Chip',
+    title_zh: '氧气信用芯片',
+    description: 'Currency used within the colony. Backed by O2 reserves.',
+    description_zh: '殖民地内使用的货币。由氧气储备作为担保。',
+    type: EntityType.LORE,
+    status: EntityStatus.APPROVED,
+    tags: ['item', 'currency'],
+    category: 'Artifact',
+    content: 'A transparent chip containing a pressurized isotope marker.',
+    content_zh: '一种包含加压同位素标记的透明芯片。',
+    created_at: past(150),
+    updated_at: past(10),
+    author_id: 'writer_dave',
+    linked_ids: ['sci-lore-001']
+  } as LoreEntity,
+  {
+    id: 'sci-lore-004',
+    projectId: 'p3',
+    title: 'Terraforming Protocol V7',
+    title_zh: '大气改造协议 V7',
+    description: 'The strict set of rules governing atmospheric processing to ensure stability.',
+    description_zh: '管理大气处理以确保稳定性的严格规则集。',
+    type: EntityType.LORE,
+    status: EntityStatus.APPROVED,
+    tags: ['concept', 'law', 'scifi'],
+    category: 'Concept',
+    content: 'Protocol V7 forbids the release of unprocessed nitrogen...',
+    content_zh: 'V7 协议禁止排放未处理的氮气...',
+    created_at: past(120),
+    updated_at: past(5),
+    author_id: 'writer_dave',
+    linked_ids: ['sci-lore-001', 'sci-task-001']
   } as LoreEntity,
   {
     id: 'sci-asset-001',
@@ -361,6 +519,6 @@ export const MOCK_DATA: AppEntity[] = [
     created_at: past(2),
     updated_at: now,
     author_id: 'lead_dev',
-    linked_ids: ['sci-lore-001']
+    linked_ids: ['sci-lore-001', 'sci-lore-002']
   } as TaskEntity,
 ];

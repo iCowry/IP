@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
-import { MOCK_DATA, PROJECTS } from './mockData';
-import { AppEntity, EntityType, EntityStatus, LoreEntity, AssetEntity, AIEntity } from './types';
+import { MOCK_DATA, PROJECTS, DEFAULT_CATEGORIES } from './mockData';
+import { AppEntity, EntityType, EntityStatus, LoreEntity, AssetEntity, AIEntity, CategoryDefinition } from './types';
 import { DICTIONARY, Language } from './utils';
 import RelationshipGraph from './components/RelationshipGraph';
 import WorldBiblePage from './components/WorldBiblePage';
@@ -10,6 +10,7 @@ import DashboardPage from './components/DashboardPage';
 import AILabPage from './components/AILabPage';
 import DetailPanel from './components/DetailPanel'; 
 import ResourceCard from './components/ResourceCard';
+import CategoryManager from './components/CategoryManager';
 import { 
   Network, 
   Book, 
@@ -29,22 +30,29 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<EntityType | 'Graph' | 'Dashboard'>('Dashboard');
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   
+  // Data State (Lifted from constant to state)
+  const [entities, setEntities] = useState<AppEntity[]>(MOCK_DATA);
+
   // Project State
   const [activeProjectId, setActiveProjectId] = useState<string>(PROJECTS[0].id);
   const [isProjectMenuOpen, setIsProjectMenuOpen] = useState(false);
+
+  // Category State
+  const [categories, setCategories] = useState<CategoryDefinition[]>(DEFAULT_CATEGORIES);
+  const [isCategoryManagerOpen, setCategoryManagerOpen] = useState(false);
 
   const t = DICTIONARY[lang];
 
   const activeProject = PROJECTS.find(p => p.id === activeProjectId) || PROJECTS[0];
 
   const selectedEntity = useMemo(() => 
-    MOCK_DATA.find(e => e.id === selectedEntityId), 
-  [selectedEntityId]);
+    entities.find(e => e.id === selectedEntityId), 
+  [selectedEntityId, entities]);
 
   // Filter Data by Project ID AND Active Tab
   const projectData = useMemo(() => {
-    return MOCK_DATA.filter(item => item.projectId === activeProjectId);
-  }, [activeProjectId]);
+    return entities.filter(item => item.projectId === activeProjectId);
+  }, [activeProjectId, entities]);
 
   const filteredData = useMemo(() => {
     if (activeTab === 'Graph' || activeTab === 'Dashboard') return projectData;
@@ -53,6 +61,21 @@ export default function App() {
 
   const toggleLang = () => {
     setLang(prev => prev === 'en' ? 'zh' : 'en');
+  };
+
+  // CRUD Handlers
+  const handleAddEntity = (newEntity: AppEntity) => {
+    setEntities(prev => [newEntity, ...prev]);
+  };
+
+  const handleUpdateEntity = (updatedEntity: AppEntity) => {
+    setEntities(prev => prev.map(e => e.id === updatedEntity.id ? updatedEntity : e));
+    // If selected, update selection logic implicit via id
+  };
+
+  const handleDeleteEntity = (id: string) => {
+    setEntities(prev => prev.filter(e => e.id !== id));
+    if (selectedEntityId === id) setSelectedEntityId(null);
   };
 
   const TabIcons = {
@@ -97,7 +120,14 @@ export default function App() {
           <WorldBiblePage 
             data={filteredData as LoreEntity[]} 
             onSelect={setSelectedEntityId} 
-            lang={lang} 
+            lang={lang}
+            categories={categories}
+            onManageCategories={() => setCategoryManagerOpen(true)}
+            projectId={activeProjectId}
+            projectName={activeProject.name}
+            onAddEntity={handleAddEntity}
+            onUpdateEntity={handleUpdateEntity}
+            onDeleteEntity={handleDeleteEntity}
           />
         );
       case EntityType.ASSET:
@@ -141,7 +171,7 @@ export default function App() {
         <div className="p-6 border-b border-slate-800">
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
             <span className="text-white"><Network /></span>
-            {t.appTitle} <span className="text-xs text-slate-500 font-normal mt-1">v1.2</span>
+            {t.appTitle} <span className="text-xs text-slate-500 font-normal mt-1">v1.3</span>
           </h1>
           <div className="mt-3 px-2 py-1 bg-slate-800 rounded border border-slate-700">
              <div className="text-[10px] text-slate-500 uppercase font-bold">{t.currentProject}</div>
@@ -270,7 +300,7 @@ export default function App() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
               <input 
                 type="text" 
-                placeholder="Search entities..." 
+                placeholder={t.searchPlaceholder}
                 className="bg-slate-900 border border-slate-700 rounded-full pl-9 pr-4 py-1.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 w-64 placeholder:text-slate-600 transition-all"
               />
             </div>
@@ -297,6 +327,15 @@ export default function App() {
           lang={lang} 
         />
       )}
+
+      {/* Category Manager Modal */}
+      <CategoryManager 
+        isOpen={isCategoryManagerOpen}
+        onClose={() => setCategoryManagerOpen(false)}
+        categories={categories}
+        setCategories={setCategories}
+        lang={lang}
+      />
     </div>
   );
 }

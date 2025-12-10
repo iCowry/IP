@@ -30,7 +30,20 @@ export const DICTIONARY = {
       modelSelect: "Model Selection",
       params: "Parameters",
       copy: "Copy Prompt",
-      outputPlaceholder: "Model output will appear here..."
+      outputPlaceholder: "Model output will appear here...",
+      temp: "Temp",
+      seed: "Seed",
+      random: "Random",
+      promptLabel: "System / User Prompt",
+      outputLabel: "Output Preview",
+      selectHint: "Select an AI Entity to view details",
+      copied: "Prompt copied to clipboard!"
+    },
+    detailPanel: {
+      editEntity: "Edit Entity",
+      viewHistory: "View History",
+      id: "ID",
+      auth: "Auth"
     },
     fields: {
       id: "ID",
@@ -49,7 +62,9 @@ export const DICTIONARY = {
       priority: "Priority",
       fileType: "File Type",
       linked: "Linked",
-      status: "Status"
+      status: "Status",
+      title: "Title",
+      content: "Content / Story"
     },
     types: {
       [EntityType.LORE]: 'World Bible',
@@ -69,7 +84,26 @@ export const DICTIONARY = {
       Character: 'Character',
       Location: 'Location',
       Timeline: 'Timeline',
-      Artifact: 'Artifact'
+      Artifact: 'Artifact',
+      Faction: 'Faction',
+      Nation: 'Nation',
+      Event: 'Event',
+      Species: 'Species',
+      Concept: 'Concept',
+      Cosmology: 'Cosmology'
+    },
+    categoryManager: {
+      title: "Manage Categories",
+      nameEn: "Name (EN)",
+      nameZh: "Name (ZH)",
+      actions: "Actions",
+      addTitle: "Add New Category",
+      add: "Add",
+      deleteConfirm: "Are you sure you want to delete this category?",
+      save: "Save",
+      edit: "Edit",
+      delete: "Delete",
+      manageBtn: "Manage Categories"
     },
     priorities: {
       Low: 'Low',
@@ -90,6 +124,22 @@ export const DICTIONARY = {
       [EntityType.AI]: "AI Models/Prompts",
       [EntityType.CODE]: "Tech Integrations",
       [EntityType.TASK]: "Associated Tasks"
+    },
+    crud: {
+      addEntity: "Add New Entry",
+      aiGenerate: "AI Generate",
+      edit: "Edit",
+      delete: "Delete",
+      save: "Save Entity",
+      cancel: "Cancel",
+      deleteConfirm: "Delete this entity?",
+      genTitle: "AI Content Generator",
+      genPlaceholder: "Describe what you want to create (e.g., 'A legendary sword lost in the crimson sands')...",
+      generating: "Generating...",
+      apply: "Apply to World",
+      autoFill: "Auto-fill",
+      basicInfo: "Basic Info",
+      details: "Details"
     }
   },
   zh: {
@@ -106,11 +156,17 @@ export const DICTIONARY = {
     inspectorHeader: "实体检查器",
     recentActivity: "近期活动",
     taskProgress: "任务进度",
+    searchPlaceholder: "搜索实体...",
     stats: {
       totalEntities: "实体总数",
       pendingTasks: "待办任务",
       aiModels: "AI 模型数",
       storageUsed: "已用存储"
+    },
+    dashboard: {
+      complete: "完成",
+      highPriority: "高优先级",
+      dueThisWeek: "本周截止"
     },
     aiLab: {
       editorTitle: "提示词工程",
@@ -118,7 +174,20 @@ export const DICTIONARY = {
       modelSelect: "模型选择",
       params: "参数设置",
       copy: "复制提示词",
-      outputPlaceholder: "模型输出将显示在这里..."
+      outputPlaceholder: "模型输出将显示在这里...",
+      temp: "温度",
+      seed: "随机种子",
+      random: "随机",
+      promptLabel: "系统/用户提示词",
+      outputLabel: "输出预览",
+      selectHint: "请选择一个 AI 实体以查看详情",
+      copied: "提示词已复制到剪贴板！"
+    },
+    detailPanel: {
+      editEntity: "编辑实体",
+      viewHistory: "查看历史",
+      id: "编号",
+      auth: "作者"
     },
     fields: {
       id: "ID 编号",
@@ -137,7 +206,9 @@ export const DICTIONARY = {
       priority: "优先级",
       fileType: "文件类型",
       linked: "关联",
-      status: "状态"
+      status: "状态",
+      title: "标题",
+      content: "内容 / 故事"
     },
     types: {
       [EntityType.LORE]: '世界设定集',
@@ -157,7 +228,26 @@ export const DICTIONARY = {
       Character: '角色',
       Location: '地点',
       Timeline: '时间线',
-      Artifact: '物品'
+      Artifact: '物品',
+      Faction: '势力/组织',
+      Nation: '国家',
+      Event: '事件/历史',
+      Species: '种族',
+      Concept: '概念/设定',
+      Cosmology: '世界观/宇宙论'
+    },
+    categoryManager: {
+      title: "分类管理",
+      nameEn: "名称 (英文)",
+      nameZh: "名称 (中文)",
+      actions: "操作",
+      addTitle: "添加新分类",
+      add: "添加",
+      deleteConfirm: "确定要删除这个分类吗？",
+      save: "保存",
+      edit: "编辑",
+      delete: "删除",
+      manageBtn: "管理分类"
     },
     priorities: {
       Low: '低',
@@ -178,6 +268,22 @@ export const DICTIONARY = {
       [EntityType.AI]: "AI 模型/提示词",
       [EntityType.CODE]: "技术集成",
       [EntityType.TASK]: "关联任务"
+    },
+    crud: {
+      addEntity: "新建条目",
+      aiGenerate: "AI 智能生成",
+      edit: "编辑",
+      delete: "删除",
+      save: "保存实体",
+      cancel: "取消",
+      deleteConfirm: "确定要删除此条目吗？",
+      genTitle: "AI 内容生成器",
+      genPlaceholder: "描述你想创建的内容 (例如：'一把失落在猩红沙漠中的传奇宝剑')...",
+      generating: "正在生成中...",
+      apply: "应用到世界",
+      autoFill: "自动填充",
+      basicInfo: "基本信息",
+      details: "详细内容"
     }
   }
 };

@@ -12,7 +12,8 @@
     "react-dom": "^19.2.1",
     "d3": "^7.9.0",
     "react": "^19.2.1",
-    "lucide-react": "0.460.0"
+    "lucide-react": "0.460.0",
+    "@google/genai": "^1.32.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

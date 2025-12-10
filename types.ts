@@ -24,6 +24,13 @@ export interface Project {
   themeColor: string; // Tailwind color class stub (e.g., 'blue', 'red')
 }
 
+// Dynamic Category Definition
+export interface CategoryDefinition {
+  id: string;
+  name: string; // English / Internal Key
+  name_zh: string; // Chinese Label
+}
+
 // The Base Interface that all entities must implement
 // This ensures the "Universal" nature of the platform
 export interface BaseEntity {
@@ -47,7 +54,8 @@ export interface BaseEntity {
 // 1. World Bible (Lore, Settings)
 export interface LoreEntity extends BaseEntity {
   type: EntityType.LORE;
-  category: 'Character' | 'Location' | 'Timeline' | 'Artifact';
+  // Category is now dynamic string to support user management
+  category: string; 
   content: string; // Markdown or rich text content
   content_zh?: string; // Localized Content
 }

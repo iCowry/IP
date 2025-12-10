@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AppEntity, EntityStatus, EntityType, AssetEntity } from '../types';
 import { Language, getLoc, DICTIONARY } from '../utils';
@@ -11,7 +12,9 @@ import {
   CheckCircle2, 
   AlertCircle, 
   XCircle, 
-  FileText 
+  FileText,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 
 interface ResourceCardProps {
@@ -19,6 +22,8 @@ interface ResourceCardProps {
   onClick: (id: string) => void;
   lang: Language;
   selected?: boolean;
+  onEdit?: (entity: AppEntity) => void;
+  onDelete?: (id: string) => void;
 }
 
 const StatusBadge: React.FC<{ status: EntityStatus, lang: Language }> = ({ status, lang }) => {
@@ -61,7 +66,7 @@ const EntityIcon: React.FC<{ entity: AppEntity }> = ({ entity }) => {
   return <Box className="text-slate-400" size={24} />;
 };
 
-const ResourceCard: React.FC<ResourceCardProps> = ({ entity, onClick, lang, selected }) => {
+const ResourceCard: React.FC<ResourceCardProps> = ({ entity, onClick, lang, selected, onEdit, onDelete }) => {
   const t = DICTIONARY[lang];
   const isImage = entity.type === EntityType.ASSET && 
     ((entity as AssetEntity).fileType === 'Image' || (entity as AssetEntity).fileType === 'Texture');
@@ -75,6 +80,26 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ entity, onClick, lang, sele
         ${selected ? 'border-blue-500 ring-1 ring-blue-500/30' : 'border-slate-800 hover:border-slate-600'}
       `}
     >
+      {/* Edit/Delete Overlay */}
+      <div className="absolute top-2 right-2 z-10 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {onEdit && (
+          <button 
+            onClick={(e) => { e.stopPropagation(); onEdit(entity); }}
+            className="p-1.5 bg-slate-800/90 text-slate-300 hover:text-white hover:bg-blue-600 rounded-md backdrop-blur border border-slate-700 shadow-lg"
+          >
+            <Edit2 size={12} />
+          </button>
+        )}
+        {onDelete && (
+          <button 
+             onClick={(e) => { e.stopPropagation(); onDelete(entity.id); }}
+             className="p-1.5 bg-slate-800/90 text-slate-300 hover:text-white hover:bg-red-600 rounded-md backdrop-blur border border-slate-700 shadow-lg"
+          >
+            <Trash2 size={12} />
+          </button>
+        )}
+      </div>
+
       {/* Preview Header */}
       <div className={`h-32 w-full overflow-hidden relative ${isImage ? 'bg-slate-950' : 'bg-slate-800/50 flex items-center justify-center'}`}>
         {isImage ? (
@@ -89,8 +114,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ entity, onClick, lang, sele
           </div>
         )}
         
-        {/* Linked Count Badge */}
-        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-slate-300 text-[10px] px-2 py-1 rounded-full flex items-center gap-1 border border-white/5">
+        {/* Linked Count Badge (Only show if not hovering actions) */}
+        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-slate-300 text-[10px] px-2 py-1 rounded-full flex items-center gap-1 border border-white/5 group-hover:opacity-0 transition-opacity">
           <Link2 size={10} />
           {entity.linked_ids.length}
         </div>
